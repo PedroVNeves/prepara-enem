@@ -1,0 +1,13 @@
+.venv/
+.venv-314test/
+.git/
+__pycache__/
+*.pyc
+staticfiles/
+media/
+db.sqlite3
+.env
+.env.bak
+*.egg-info/
+.pytest_cache/
+preparaenem.bundle.part*
