@@ -37,7 +37,7 @@ class Command(BaseCommand):
         dry_run = options["dry_run"]
 
         exams_index_path = base_dir / "exams.json"
-        exams_index = json.loads(exams_index_path.read_text())
+        exams_index = json.loads(exams_index_path.read_text(encoding="utf-8"))
 
         stats = {"questions": 0, "alternatives": 0, "missing_images": []}
 
@@ -79,7 +79,7 @@ class Command(BaseCommand):
         if not details_path.exists():
             self.stdout.write(self.style.WARNING(f"  {details_path} não encontrado, pulando."))
             return
-        details = json.loads(details_path.read_text())
+        details = json.loads(details_path.read_text(encoding="utf-8"))
         for q_ref in details["questions"]:
             self._import_question(base_dir, year_dir, exam, q_ref, stats)
 
@@ -91,7 +91,7 @@ class Command(BaseCommand):
         if not question_path.exists():
             self.stdout.write(self.style.WARNING(f"  questão ausente: {question_path}"))
             return
-        data = json.loads(question_path.read_text())
+        data = json.loads(question_path.read_text(encoding="utf-8"))
 
         context, missing = self._rewrite_images(data.get("context") or "", base_dir)
         stats["missing_images"].extend(missing)
