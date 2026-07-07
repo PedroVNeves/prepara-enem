@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Jobs</h1>
+<form method="post">
+  {% csrf_token %}
+  <select name="job_name">
+    {% for job in jobs %}
+    <option value="{{ job }}">{{ job }}</option>
+    {% endfor %}
+  </select>
+  <button type="submit">Disparar agora</button>
+</form>
+<h2>Execuções recentes</h2>
+<ul>
+  {% for run in runs %}
+  <li>{{ run.job_name }} — {{ run.status }} — {{ run.started_at }} — {{ run.summary }}</li>
+  {% endfor %}
+</ul>
+{% endblock %}

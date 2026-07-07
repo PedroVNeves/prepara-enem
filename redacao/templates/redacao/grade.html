@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Corrigir redação de {{ submission.aluno_profile.user.nome }}</h1>
+{% if submission.submission_type == "photo" %}
+<img src="{{ submission.foto.url }}" alt="Foto da redação" style="max-width: 100%;">
+{% else %}
+<pre style="white-space: pre-wrap;">{{ submission.texto }}</pre>
+{% endif %}
+
+<form method="post">
+  {% csrf_token %}
+  {% for c in "12345" %}
+  <label>Competência {{ c }} (0-200):
+    <input type="number" name="c{{ c }}" min="0" max="200" step="40" value="0" required>
+  </label>
+  <textarea name="feedback_c{{ c }}" rows="2" cols="60" placeholder="Comentário"></textarea>
+  <br>
+  {% endfor %}
+  <button type="submit">Salvar correção</button>
+</form>
+{% endblock %}

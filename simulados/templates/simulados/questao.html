@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load markdown_extras %}
+{% block content %}
+<p>Questão {{ ordem }} de {{ total }} — {{ question.get_discipline_display }}</p>
+<div>{{ question.context|render_markdown }}</div>
+
+<form method="post" id="form-resposta" onsubmit="return setTempoGasto()">
+  {% csrf_token %}
+  <p>{{ question.alternatives_introduction }}</p>
+  {% for alt in alternativas %}
+  <label style="display:block">
+    <input type="radio" name="alternativa" value="{{ alt.letter }}" required>
+    {{ alt.letter }}) {{ alt.text }}
+    {% if alt.image_path %}<img src="/static/{{ alt.image_path }}" alt="alternativa {{ alt.letter }}">{% endif %}
+  </label>
+  {% endfor %}
+  <input type="hidden" name="tempo_gasto_ms" id="tempo_gasto_ms" value="0">
+  <button type="submit">{% if is_last %}Finalizar{% else %}Próxima{% endif %}</button>
+</form>
+
+<script>
+  const _inicioQuestao = Date.now();
+  function setTempoGasto() {
+    document.getElementById('tempo_gasto_ms').value = Date.now() - _inicioQuestao;
+    return true;
+  }
+</script>
+{% endblock %}

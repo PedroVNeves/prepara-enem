@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Turma {{ turma.nome }}</h1>
+<table border="1" cellpadding="6">
+  <tr><th>Aluno</th><th>Respostas</th><th>Acertos</th><th>%</th><th>Tempo médio (ms)</th><th></th></tr>
+  {% for item in resultado %}
+  <tr>
+    <td>{{ item.aluno.user.nome }}</td>
+    <td>{{ item.total_respostas }}</td>
+    <td>{{ item.acertos }}</td>
+    <td>{{ item.percentual|default:"—" }}</td>
+    <td>{{ item.tempo_medio_ms|floatformat:0 }}</td>
+    <td><a href="{% url 'reports:aluno_stats' item.aluno.id %}">Ver relatório</a></td>
+  </tr>
+  {% endfor %}
+</table>
+{% endblock %}

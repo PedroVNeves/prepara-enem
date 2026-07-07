@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Novo simulado customizado</h1>
+<form method="post">
+  {% csrf_token %}
+  <label>Área:
+    <select name="discipline">
+      {% for value, label in disciplines %}
+      <option value="{{ value }}">{{ label }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <br>
+  <label>Assunto (opcional):
+    <select name="topic_id">
+      <option value="">Qualquer assunto da área</option>
+      {% for topic in topics %}
+      <option value="{{ topic.id }}">{{ topic.name }} ({{ topic.get_discipline_display }})</option>
+      {% endfor %}
+    </select>
+  </label>
+  <br>
+  <label>Quantidade de questões:
+    <input type="number" name="quantidade" value="10" min="1" max="90">
+  </label>
+  <br>
+  <button type="submit">Começar</button>
+</form>
+{% endblock %}

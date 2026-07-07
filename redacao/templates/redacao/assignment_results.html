@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ assignment.tema }}</h1>
+<table border="1" cellpadding="6">
+  <tr><th>Aluno</th><th>Status</th><th>Nota</th><th>Ação</th></tr>
+  {% for submissao in submissoes %}
+  <tr>
+    <td>{{ submissao.aluno_profile.user.nome }}</td>
+    <td>{{ submissao.get_status_display }}</td>
+    <td>{{ submissao.nota_final|default:"—" }}</td>
+    <td>
+      {% if submissao.status == "pending" and assignment.correction_mode == "manual" %}
+      <a href="{% url 'redacao:grade' submissao.id %}">Corrigir</a>
+      {% endif %}
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+{% endblock %}

@@ -1,0 +1,330 @@
+[
+  {
+    "model": "exams.topic",
+    "pk": 1,
+    "fields": {
+      "discipline": "linguagens",
+      "name": "Interpretação de texto"
+    }
+  },
+  {
+    "model": "exams.topic",
+    "pk": 2,
+    "fields": {
+      "discipline": "linguagens",
+      "name": "Gêneros textuais"
+    }
+  },
+  {
+    "model": "exams.topic",
+    "pk": 3,
+    "fields": {
+      "discipline": "linguagens",
+      "name": "Funções da linguagem"
+    }
+  },
+  {
+    "model": "exams.topic",
+    "pk": 4,
+    "fields": {
+      "discipline": "linguagens",
+      "name": "Variação linguística"
+    }
+  },
+  {
+    "model": "exams.topic",
+    "pk": 5,
+    "fields": {
+      "discipline": "linguagens",
+      "name": "Literatura brasileira"
+    }
+  },
+  {
+    "model": "exams.topic",
+    "pk": 6,
+    "fields": {
+      "discipline": "linguagens",
+      "name": "Figuras de linguagem"
+    }
+  },
+  {
+    "model": "exams.topic",
+    "pk": 7,
+    "fields": {
+      "discipline": "linguagens",
+      "name": "Gramática normativa"
+    }
+  },
+  {
+    "model": "exams.topic",
+    "pk": 8,
+    "fields": {
+      "discipline": "linguagens",
+      "name": "Artes e cultura"
+    }
+  },
+  {
+    "model": "exams.topic",
+    "pk": 9,
+    "fields": {
+      "discipline": "linguagens",
+      "name": "Educação física"
+    }
+  },
+  {
+    "model": "exams.topic",
+    "pk": 10,
+    "fields": {
+      "discipline": "linguagens",
+      "name": "Tecnologias da informação e comunicação"
+    }
+  },
+  {
+    "model": "exams.topic",
+    "pk": 11,
+    "fields": {
+      "discipline": "linguagens",
+      "name": "Língua estrangeira"
+    }
+  },
+  {
+    "model": "exams.topic",
+    "pk": 12,
+    "fields": {
+      "discipline": "ciencias-humanas",
+      "name": "História do Brasil"
+    }
+  },
+  {
+    "model": "exams.topic",
+    "pk": 13,
+    "fields": {
+      "discipline": "ciencias-humanas",
+      "name": "História geral"
+    }
+  },
+  {
+    "model": "exams.topic",
+    "pk": 14,
+    "fields": {
+      "discipline": "ciencias-humanas",
+      "name": "Geografia física"
+    }
+  },
+  {
+    "model": "exams.topic",
+    "pk": 15,
+    "fields": {
+      "discipline": "ciencias-humanas",
+      "name": "Geografia humana e urbana"
+    }
+  },
+  {
+    "model": "exams.topic",
+    "pk": 16,
+    "fields": {
+      "discipline": "ciencias-humanas",
+      "name": "Geopolítica"
+    }
+  },
+  {
+    "model": "exams.topic",
+    "pk": 17,
+    "fields": {
+      "discipline": "ciencias-humanas",
+      "name": "Sociologia"
+    }
+  },
+  {
+    "model": "exams.topic",
+    "pk": 18,
+    "fields": {
+      "discipline": "ciencias-humanas",
+      "name": "Filosofia"
+    }
+  },
+  {
+    "model": "exams.topic",
+    "pk": 19,
+    "fields": {
+      "discipline": "ciencias-humanas",
+      "name": "Cidadania e direitos humanos"
+    }
+  },
+  {
+    "model": "exams.topic",
+    "pk": 20,
+    "fields": {
+      "discipline": "ciencias-humanas",
+      "name": "Cartografia"
+    }
+  },
+  {
+    "model": "exams.topic",
+    "pk": 21,
+    "fields": {
+      "discipline": "ciencias-humanas",
+      "name": "Meio ambiente e sustentabilidade"
+    }
+  },
+  {
+    "model": "exams.topic",
+    "pk": 22,
+    "fields": {
+      "discipline": "ciencias-natureza",
+      "name": "Mecânica"
+    }
+  },
+  {
+    "model": "exams.topic",
+    "pk": 23,
+    "fields": {
+      "discipline": "ciencias-natureza",
+      "name": "Eletricidade e magnetismo"
+    }
+  },
+  {
+    "model": "exams.topic",
+    "pk": 24,
+    "fields": {
+      "discipline": "ciencias-natureza",
+      "name": "Termodinâmica"
+    }
+  },
+  {
+    "model": "exams.topic",
+    "pk": 25,
+    "fields": {
+      "discipline": "ciencias-natureza",
+      "name": "Ondulatória e óptica"
+    }
+  },
+  {
+    "model": "exams.topic",
+    "pk": 26,
+    "fields": {
+      "discipline": "ciencias-natureza",
+      "name": "Química orgânica"
+    }
+  },
+  {
+    "model": "exams.topic",
+    "pk": 27,
+    "fields": {
+      "discipline": "ciencias-natureza",
+      "name": "Química inorgânica e físico-química"
+    }
+  },
+  {
+    "model": "exams.topic",
+    "pk": 28,
+    "fields": {
+      "discipline": "ciencias-natureza",
+      "name": "Ecologia"
+    }
+  },
+  {
+    "model": "exams.topic",
+    "pk": 29,
+    "fields": {
+      "discipline": "ciencias-natureza",
+      "name": "Genética e evolução"
+    }
+  },
+  {
+    "model": "exams.topic",
+    "pk": 30,
+    "fields": {
+      "discipline": "ciencias-natureza",
+      "name": "Fisiologia humana"
+    }
+  },
+  {
+    "model": "exams.topic",
+    "pk": 31,
+    "fields": {
+      "discipline": "ciencias-natureza",
+      "name": "Energia e sustentabilidade"
+    }
+  },
+  {
+    "model": "exams.topic",
+    "pk": 32,
+    "fields": {
+      "discipline": "matematica",
+      "name": "Álgebra"
+    }
+  },
+  {
+    "model": "exams.topic",
+    "pk": 33,
+    "fields": {
+      "discipline": "matematica",
+      "name": "Geometria plana"
+    }
+  },
+  {
+    "model": "exams.topic",
+    "pk": 34,
+    "fields": {
+      "discipline": "matematica",
+      "name": "Geometria espacial"
+    }
+  },
+  {
+    "model": "exams.topic",
+    "pk": 35,
+    "fields": {
+      "discipline": "matematica",
+      "name": "Funções"
+    }
+  },
+  {
+    "model": "exams.topic",
+    "pk": 36,
+    "fields": {
+      "discipline": "matematica",
+      "name": "Estatística e probabilidade"
+    }
+  },
+  {
+    "model": "exams.topic",
+    "pk": 37,
+    "fields": {
+      "discipline": "matematica",
+      "name": "Razão e proporção"
+    }
+  },
+  {
+    "model": "exams.topic",
+    "pk": 38,
+    "fields": {
+      "discipline": "matematica",
+      "name": "Matemática financeira"
+    }
+  },
+  {
+    "model": "exams.topic",
+    "pk": 39,
+    "fields": {
+      "discipline": "matematica",
+      "name": "Trigonometria"
+    }
+  },
+  {
+    "model": "exams.topic",
+    "pk": 40,
+    "fields": {
+      "discipline": "matematica",
+      "name": "Análise de gráficos e tabelas"
+    }
+  },
+  {
+    "model": "exams.topic",
+    "pk": 41,
+    "fields": {
+      "discipline": "matematica",
+      "name": "Conjuntos numéricos"
+    }
+  }
+]

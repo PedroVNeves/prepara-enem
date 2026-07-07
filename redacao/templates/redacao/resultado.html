@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Resultado da redação</h1>
+<p>Status: {{ submission.get_status_display }}</p>
+{% if submission.nota_final %}
+<p>Nota final: {{ submission.nota_final }} / 1000</p>
+<ul>
+  {% for item in detalhes %}
+  <li>{{ item.competencia }}: {{ item.nota }} — {{ item.feedback }}</li>
+  {% endfor %}
+</ul>
+{% elif submission.status == "failed" %}
+<p>Falha na correção: {{ submission.error_message }}</p>
+{% else %}
+<p>Ainda aguardando correção. Atualize a página em alguns minutos.</p>
+{% endif %}
+{% endblock %}

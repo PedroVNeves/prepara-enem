@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Atribuir redação</h1>
+<form method="post">
+  {% csrf_token %}
+  <label><input type="checkbox" name="gerar_tema_ia" value="1"> Pedir à IA para gerar um tema</label>
+  <br>
+  <label>Tema (ignorado se marcar a opção acima):
+    <input type="text" name="tema">
+  </label>
+  <br>
+  <label>Texto motivador:
+    <textarea name="texto_motivador" rows="4" cols="60"></textarea>
+  </label>
+  <br>
+  <label>Modo de correção:
+    <select name="correction_mode">
+      <option value="manual">Eu mesmo corrijo (aceita foto ou texto)</option>
+      <option value="ai">Correção por IA (só texto)</option>
+    </select>
+  </label>
+  <br>
+  <label>Turma (opcional):
+    <select name="turma_id">
+      <option value="">Nenhuma</option>
+      {% for turma in turmas %}
+      <option value="{{ turma.id }}">{{ turma.nome }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <br>
+  <label>Alunos específicos (opcional, além da turma):</label>
+  <select name="alunos" multiple size="6">
+    {% for aluno in alunos %}
+    <option value="{{ aluno.id }}">{{ aluno.user.nome }} ({{ aluno.user.email }})</option>
+    {% endfor %}
+  </select>
+  <br>
+  <button type="submit">Atribuir</button>
+</form>
+{% endblock %}

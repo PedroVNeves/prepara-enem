@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Resultados da atribuição #{{ assignment.id }}</h1>
+<table border="1" cellpadding="6">
+  <tr><th>Aluno</th><th>Status</th><th>Acertos</th></tr>
+  {% for item in resultados %}
+  <tr>
+    <td>{{ item.simulado.aluno_profile.user.nome }}</td>
+    <td>{{ item.simulado.get_status_display }}</td>
+    <td>
+      {% if item.resumo %}
+        {{ item.resumo.acertos }} / {{ item.resumo.total_questoes }} ({{ item.resumo.percentual }}%)
+      {% else %}
+        Ainda não finalizado
+      {% endif %}
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+{% endblock %}

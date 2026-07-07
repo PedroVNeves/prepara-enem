@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Resultado</h1>
+<p>Acertos: {{ resumo.acertos }} / {{ resumo.total_questoes }} ({{ resumo.percentual }}%)</p>
+<a href="{% url 'simulados:start' %}">Fazer outro simulado</a>
+{% endblock %}

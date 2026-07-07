@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Novo simulado</h1>
+<p>Escolha uma prova histórica completa do ENEM para fazer:</p>
+<form method="post">
+  {% csrf_token %}
+  <select name="exam_id">
+    {% for exam in exams %}
+    <option value="{{ exam.id }}">{{ exam.title }}</option>
+    {% endfor %}
+  </select>
+  <button type="submit">Começar</button>
+</form>
+{% endblock %}

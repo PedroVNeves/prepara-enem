@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Nova redação</h1>
+<form method="post">
+  {% csrf_token %}
+  <label>Tema (opcional, deixe em branco para tema livre):
+    <select name="prompt_id">
+      <option value="">Tema livre</option>
+      {% for prompt in prompts %}
+      <option value="{{ prompt.id }}">{{ prompt.titulo }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <br>
+  <textarea name="texto" rows="20" cols="80" required placeholder="Escreva sua redação aqui (aceita Markdown)"></textarea>
+  <br>
+  <button type="submit">Enviar para correção</button>
+</form>
+{% endblock %}

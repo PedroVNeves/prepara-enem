@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ assignment.tema }}</h1>
+<p>{{ assignment.texto_motivador }}</p>
+<form method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  <input type="hidden" name="submission_type" value="text" id="submission_type">
+  <textarea name="texto" rows="20" cols="80" placeholder="Escreva sua redação aqui (aceita Markdown)"></textarea>
+  {% if assignment.correction_mode == "manual" %}
+  <p>Ou envie uma foto da redação:</p>
+  <input type="file" name="foto" accept="image/*" onchange="document.getElementById('submission_type').value='photo'">
+  {% endif %}
+  <br>
+  <button type="submit">Enviar</button>
+</form>
+{% endblock %}

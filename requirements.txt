@@ -1,0 +1,13 @@
+Django==5.2.16
+django-environ==0.14.0
+whitenoise==6.12.0
+psycopg2-binary==2.9.12
+gunicorn==26.0.0
+Markdown==3.10.2
+google-genai==2.10.0
+APScheduler==3.11.3
+girth==0.8.0
+numpy==1.26.4
+pandas==2.3.3
+scikit-learn==1.9.0
+scipy==1.17.1
