@@ -1,0 +1,20 @@
+name: Keep Render awake
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping app
+        run: |
+          if [ -z "${{ vars.APP_URL }}" ]; then
+            echo "APP_URL não configurada (Settings > Secrets and variables > Actions > Variables). Pulando ping."
+            exit 0
+          fi
+          curl -sf --max-time 20 "${{ vars.APP_URL }}/login/" \
+            && echo "ping ok" \
+            || echo "ping falhou (app pode estar em cold-start, normal na 1a tentativa)"
