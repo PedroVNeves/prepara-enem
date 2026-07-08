@@ -2,10 +2,29 @@
 <html lang="pt-br">
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Prepara ENEM</title>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'core/css/main.css' %}">
   <script src="https://unpkg.com/htmx.org@1.9.12" defer></script>
 </head>
 <body>
-  {% block content %}{% endblock %}
+  <header class="site-header">
+    <div class="bar">
+      <a class="brand" href="/">Prepara ENEM</a>
+      {% if user.is_authenticated %}
+      <nav>
+        <a href="{% url 'accounts:select_context' %}">Trocar contexto</a>
+        <form method="post" action="{% url 'accounts:logout' %}" class="logout-form">
+          {% csrf_token %}
+          <button type="submit" class="link-button">Sair</button>
+        </form>
+      </nav>
+      {% endif %}
+    </div>
+  </header>
+  <div class="page">
+    {% block content %}{% endblock %}
+  </div>
 </body>
 </html>
