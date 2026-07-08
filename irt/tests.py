@@ -33,11 +33,11 @@ class ClassifyQuestionsLlmTests(TestCase):
         self.topic = Topic.objects.create(discipline=Discipline.MATEMATICA, name="Álgebra")
         self.question = _make_question(self.exam, 1, Discipline.MATEMATICA)
 
-    @patch(
-        "irt.management.commands.classify_questions_llm.generate_json",
-        return_value={"topic": "Álgebra", "difficulty_b": 0.75},
-    )
+    @patch("irt.management.commands.classify_questions_llm.generate_json")
     def test_classify_creates_item_parameters(self, mock_generate):
+        mock_generate.return_value = {
+            "classificacoes": [{"id": self.question.id, "topic": "Álgebra", "difficulty_b": 0.75}]
+        }
         call_command("classify_questions_llm")
 
         self.question.refresh_from_db()
@@ -48,11 +48,13 @@ class ClassifyQuestionsLlmTests(TestCase):
         self.assertEqual(params.difficulty_source, DifficultySource.LLM_ESTIMATE)
         self.assertEqual(self.question.topic, self.topic)
 
-    @patch(
-        "irt.management.commands.classify_questions_llm.generate_json",
-        return_value={"topic": "Assunto Inventado Pelo LLM", "difficulty_b": -1.0},
-    )
+    @patch("irt.management.commands.classify_questions_llm.generate_json")
     def test_classify_ignores_topic_outside_curated_taxonomy(self, mock_generate):
+        mock_generate.return_value = {
+            "classificacoes": [
+                {"id": self.question.id, "topic": "Assunto Inventado Pelo LLM", "difficulty_b": -1.0}
+            ]
+        }
         call_command("classify_questions_llm")
 
         self.question.refresh_from_db()
@@ -60,11 +62,11 @@ class ClassifyQuestionsLlmTests(TestCase):
         params = ItemParameters.objects.get(question=self.question)
         self.assertEqual(params.b, -1.0)
 
-    @patch(
-        "irt.management.commands.classify_questions_llm.generate_json",
-        return_value={"topic": "Álgebra", "difficulty_b": 0.0},
-    )
+    @patch("irt.management.commands.classify_questions_llm.generate_json")
     def test_classify_is_idempotent(self, mock_generate):
+        mock_generate.return_value = {
+            "classificacoes": [{"id": self.question.id, "topic": "Álgebra", "difficulty_b": 0.0}]
+        }
         call_command("classify_questions_llm")
         call_command("classify_questions_llm")
 
