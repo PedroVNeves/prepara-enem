@@ -20,6 +20,15 @@ DEBUG = env.bool("DEBUG", default=False)
 
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["localhost", "127.0.0.1"])
 
+# Atrás de um proxy HTTPS (Cloud Run, Render, etc.), o Django exige que a
+# origem apareça aqui para aceitar POSTs (login, respostas de simulado...) —
+# sem isso, toda submissão de formulário falha com "CSRF verification
+# failed", mesmo com ALLOWED_HOSTS correto. Derivado de ALLOWED_HOSTS para
+# não duplicar a lista de hosts em duas variáveis de ambiente.
+CSRF_TRUSTED_ORIGINS = [
+    f"https://{host}" for host in ALLOWED_HOSTS if host not in ("localhost", "127.0.0.1")
+]
+
 
 INSTALLED_APPS = [
     "django.contrib.admin",
