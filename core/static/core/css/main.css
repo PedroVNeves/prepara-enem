@@ -256,3 +256,81 @@ th, td {
   padding: 0.6rem 0.9rem;
   border-bottom: 1px solid var(--color-border);
 }
+
+/* --- dataviz: dashboards D3 (reports) --- */
+.viz-root {
+  position: relative;
+  margin-bottom: 0.5rem;
+}
+
+.viz-tooltip {
+  position: absolute;
+  pointer-events: none;
+  background: var(--color-text);
+  color: #fff;
+  padding: 0.4rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  line-height: 1.3;
+  transition: opacity 0.1s ease;
+  z-index: 10;
+  white-space: nowrap;
+}
+
+.viz-tooltip strong {
+  font-size: 0.85rem;
+}
+
+.viz-tooltip span {
+  color: #d7dbe0;
+}
+
+.viz-toggle {
+  background: none;
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+  font-weight: normal;
+  padding: 0.3rem 0.7rem;
+  border-radius: 6px;
+  margin-top: 0.5rem;
+  cursor: pointer;
+}
+
+.viz-toggle:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background: none;
+}
+
+.viz-table-wrap table {
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.viz-empty {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+.viz-legend {
+  display: flex;
+  gap: 1.25rem;
+  margin-top: 0.4rem;
+  font-size: 0.85rem;
+  color: var(--color-text-secondary, var(--color-text-muted));
+}
+
+.viz-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.viz-legend-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  display: inline-block;
+}

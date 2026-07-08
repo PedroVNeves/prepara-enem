@@ -1,43 +1,93 @@
 {% extends "base.html" %}
+{% load static %}
 {% block content %}
 <h1>Relatório {% if aluno %}de {{ aluno.user.nome }}{% endif %}</h1>
 
-<h2>Domínio por área</h2>
-<ul>
-  {% for h in dominio_por_area %}
-  <li>{{ h.get_discipline_display }}: θ = {{ h.theta|floatformat:2 }}</li>
-  {% empty %}
-  <li>Ainda sem estimativa de proficiência por área.</li>
-  {% endfor %}
-</ul>
+{{ dashboard_data.dominio_area|json_script:"data-dominio-area" }}
+{{ dashboard_data.dominio_assunto|json_script:"data-dominio-assunto" }}
+{{ dashboard_data.erros_assunto|json_script:"data-erros-assunto" }}
+{{ dashboard_data.tempo_questao|json_script:"data-tempo-questao" }}
+{{ dashboard_data.impacto_erros|json_script:"data-impacto-erros" }}
 
-<h2>Assuntos com menos domínio</h2>
-<ul>
-  {% for item in dominio_por_assunto %}
-  <li>{{ item.question__topic__name }}: {{ item.acertos }} / {{ item.total }} acertos</li>
-  {% empty %}
-  <li>Sem dados suficientes ainda.</li>
-  {% endfor %}
-</ul>
+<div class="card">
+  <h2>Domínio por área</h2>
+  <p class="viz-empty" style="margin-top:-0.4rem">θ (theta) — acima de 0 é acima da média, abaixo de 0 é abaixo.</p>
+  <div id="chart-dominio-area" class="viz-root"></div>
+</div>
 
-<h2>Erros por assunto/área</h2>
-<ul>
-  {% for item in erros_por_assunto %}
-  <li>{{ item.question__discipline }} — {{ item.question__topic__name|default:"assunto não classificado" }}: {{ item.total }} erro(s)</li>
-  {% endfor %}
-</ul>
+<div class="card">
+  <h2>Assuntos com menos domínio</h2>
+  <div id="chart-dominio-assunto" class="viz-root"></div>
+</div>
 
-<h2>Tempo por questão vs. média geral</h2>
-<ul>
-  {% for item in tempo_por_questao %}
-  <li>{{ item.discipline }}: {{ item.media_aluno_ms|floatformat:0 }}ms (média geral: {{ item.media_global_ms|floatformat:0 }}ms)</li>
-  {% endfor %}
-</ul>
+<div class="card">
+  <h2>Erros por assunto/área</h2>
+  <div id="chart-erros-assunto" class="viz-root"></div>
+</div>
 
-<h2>Erros com maior impacto na proficiência</h2>
-<ul>
-  {% for item in impacto_erros %}
-  <li>{{ item.resposta.question }} — informação: {{ item.informacao|floatformat:3 }}</li>
-  {% endfor %}
-</ul>
+<div class="card">
+  <h2>Tempo por questão vs. média geral</h2>
+  <div id="chart-tempo-questao" class="viz-root"></div>
+</div>
+
+<div class="card">
+  <h2>Erros com maior impacto na proficiência</h2>
+  <div id="chart-impacto-erros" class="viz-root"></div>
+</div>
+
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script src="{% static 'core/js/charts.js' %}"></script>
+<script>
+  const dominioArea = JSON.parse(document.getElementById('data-dominio-area').textContent);
+  const dominioAssunto = JSON.parse(document.getElementById('data-dominio-assunto').textContent);
+  const errosAssunto = JSON.parse(document.getElementById('data-erros-assunto').textContent);
+  const tempoQuestao = JSON.parse(document.getElementById('data-tempo-questao').textContent);
+  const impactoErros = JSON.parse(document.getElementById('data-impacto-erros').textContent);
+
+  PreparaEnemCharts.renderBarChart('chart-dominio-area', dominioArea, {
+    labelKey: 'discipline_label',
+    valueKey: 'theta',
+    diverging: true,
+    valueFormat: (v) => (v >= 0 ? '+' : '') + v.toFixed(2),
+    ariaLabel: 'Domínio por área, em theta',
+    tableLabelHeader: 'Área',
+    tableValueHeader: 'Theta',
+  });
+
+  PreparaEnemCharts.renderBarChart('chart-dominio-assunto', dominioAssunto, {
+    labelKey: 'topic',
+    valueKey: 'percentual',
+    unit: '%',
+    ariaLabel: 'Percentual de acerto por assunto',
+    tableLabelHeader: 'Assunto',
+    tableValueHeader: '% de acerto',
+  });
+
+  PreparaEnemCharts.renderBarChart('chart-erros-assunto', errosAssunto, {
+    labelKey: 'topic',
+    valueKey: 'total',
+    valueFormat: (v) => v.toFixed(0),
+    ariaLabel: 'Total de erros por assunto',
+    tableLabelHeader: 'Assunto',
+    tableValueHeader: 'Erros',
+  });
+
+  PreparaEnemCharts.renderGroupedBarChart('chart-tempo-questao', tempoQuestao, {
+    labelKey: 'discipline_label',
+    unit: 's',
+    series: [
+      { key: 'media_aluno_s', name: 'Você', color: '#2a78d6' },
+      { key: 'media_global_s', name: 'Média geral', color: '#1baf7a' },
+    ],
+    ariaLabel: 'Tempo médio por questão, você vs. média geral',
+  });
+
+  PreparaEnemCharts.renderBarChart('chart-impacto-erros', impactoErros, {
+    labelKey: 'label',
+    valueKey: 'informacao',
+    ariaLabel: 'Erros com maior impacto na proficiência estimada',
+    tableLabelHeader: 'Questão',
+    tableValueHeader: 'Impacto (informação)',
+  });
+</script>
 {% endblock %}
