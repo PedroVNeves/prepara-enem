@@ -29,6 +29,13 @@ CSRF_TRUSTED_ORIGINS = [
     f"https://{host}" for host in ALLOWED_HOSTS if host not in ("localhost", "127.0.0.1")
 ]
 
+# Cloud Run (e Render) terminam TLS no proxy e repassam HTTP puro pro
+# container, sinalizando o protocolo original via X-Forwarded-Proto. Sem
+# isso, request.is_secure() sempre retorna False, e o Django nem chega a
+# usar o CSRF_TRUSTED_ORIGINS acima — cai num caminho de verificação
+# diferente (baseado em Referer) que falha atrás de proxy.
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
 
 INSTALLED_APPS = [
     "django.contrib.admin",
