@@ -14,30 +14,37 @@ Documento vivo: registra o que já existe (pra não redescobrir nada) e o roadma
 
 **Dataset**
 - 2757 questões do ENEM (2009–2023) importadas — texto, alternativas, gabarito, imagens
-- Import otimizado (`exams/management/commands/import_enem_dataset.py`): upsert em lote, ~15s pro dataset inteiro (era horas com a versão ingênua de uma query por linha)
+- Import otimizado (`exams/management/commands/import_enem_dataset.py`): upsert em lote, ~15s pro dataset inteiro
 - Taxonomia de tópicos carregada (`exams/fixtures/topics.json`, 41 tópicos)
-- Gap conhecido: questão 132 do ENEM 2023 tem 4 das 5 alternativas vazias — falha da fonte original (enem.dev), não do nosso import. Único caso em todo o dataset (0,04%). Não tratado — decisão pendente (deixar como está ou excluir a questão).
+- Gap conhecido: questão 132 do ENEM 2023 tem 4 das 5 alternativas vazias — falha da fonte original (enem.dev), não do nosso import. Único caso em todo o dataset (0,04%). Não tratado — decisão pendente.
 
 **TRI (Teoria de Resposta ao Item)**
-- Bootstrap via Gemini (`irt/management/commands/classify_questions_llm.py`): classifica assunto + dificuldade inicial em lotes de 25 questões por chamada (respeita rate limit de 15 req/min do free tier). Todas as 2757 questões classificadas.
-- Calibração real via `girth` (EM/máxima verossimilhança marginal) — `irt/services.py`, roda quando um item acumula respondentes suficientes.
+- Bootstrap via Gemini (`irt/management/commands/classify_questions_llm.py`): classifica assunto + dificuldade em lotes de 25 questões por chamada. Todas as 2757 questões classificadas.
+- Calibração real via `girth` (EM/máxima verossimilhança marginal) — `irt/services.py`.
 
 **Login multi-perfil**
-- Escolas (Professor/Escola/Turma), alunos vinculados a escola, alunos individuais (`AlunoProfile` com `escola=None`) — todos via `accounts` app, com seletor de contexto pós-login.
+- Escolas (Professor/Escola/Turma), alunos vinculados a escola, alunos individuais (`AlunoProfile` com `escola=None`) — `accounts` app, com seletor de contexto pós-login (`SelectContextView`) para quando um mesmo `User` tem mais de um papel (ex: professor em uma escola + aluno individual).
+- O modelo de dados já suporta "mesmo e-mail, dois contextos" (individual + vinculado a escola) — **falta o fluxo de cadastro que permite isso na prática** (ver Roadmap #2).
 
-**Simulados — ESTADO ATUAL (vai mudar, ver Roadmap #1)**
-- Dois modos hoje, nenhum dos dois é o que o produto deveria ser:
-  1. **Prova fixa** (`simulados:start`, `SimuladoStartView`) — aluno escolhe uma prova histórica completa (ex: "ENEM 2023") e faz ela inteira, na ordem original.
-  2. **Customizado** (`simulados:start_custom`, `SimuladoCustomStartView`) — aluno escolhe 1 disciplina + tópico opcional + quantidade, gera um pool filtrado aleatório dessa combinação específica.
-- **Isso não é o que foi pedido** — ver Roadmap #1.
+**Simulados — ESTADO ATUAL (vai mudar, ver Roadmap #3)**
+- Dois modos hoje, nenhum dos dois é o modelo principal desejado:
+  1. **Prova fixa** (`simulados:start`) — aluno escolhe uma prova histórica completa e faz ela inteira, na ordem original.
+  2. **Customizado** (`simulados:start_custom`) — aluno escolhe 1 disciplina + tópico opcional + quantidade.
+- Seleção por banda de dificuldade relativa ao theta do aluno já existe (`select_by_difficulty_band`), inclusive excluindo questões já respondidas — é uma boa base pra reaproveitar na reformulação.
 
 **Relatório do aluno**
-- Dashboard interativo com D3.js (`reports/templates/reports/student_report.html` + `core/static/core/js/charts.js`): domínio por área (gráfico diverging azul/vermelho), domínio por assunto, erros por assunto, tempo por questão vs. média geral, impacto de erros na proficiência. Tooltips, legendas, alternância pra tabela em cada gráfico. Paleta validada pela skill de dataviz do projeto.
-- Mesma view reaproveitada pelo professor pra ver o relatório de um aluno específico (`AlunoStatsView`).
+- Dashboard interativo com D3.js (`/aluno/relatorio/`): domínio por área (gráfico diverging azul/vermelho), domínio por assunto, erros por assunto, tempo vs. média geral, impacto de erros na proficiência. Tooltips, legendas, tabela alternativa. Paleta validada pela skill de dataviz do projeto.
+- Tela de resultado pós-simulado (`/aluno/simulados/<id>/resultado/`) também tem dashboard: hero figure do percentual, gráfico de acerto por área (só quando o simulado cobre mais de uma disciplina), tabela de revisão questão a questão.
+- Mesma view de relatório reaproveitada pelo professor pra ver o relatório de um aluno específico (`AlunoStatsView`) e de uma turma (`TurmaStatsView`).
 
-**Redação**
-- Modelos e views existem (`redacao` app): submissão, atribuição por professor, correção manual. Fixtures do corpus Essay-BR presentes pra validação futura do prompt.
-- ⚠️ **Correção automática via IA ainda não está conectada de fato** — precisa verificar/implementar o fluxo real de chamada ao Gemini pra correção (`llm/client.py` existe como wrapper genérico, mas não confirmei se `redacao/services.py` já usa isso pra corrigir).
+**Redação — MAIS COMPLETA DO QUE PARECIA, só não está exposta na navegação**
+- Aluno individual pode escrever uma redação livre (tema à escolha ou tema de um banco pré-cadastrado, `EssayPrompt`) — `/aluno/redacao/nova/`. Aceita Markdown na escrita.
+- Professor pode atribuir redação a turma/alunos (`EssayAssignmentCreateView`): escolhe tema próprio OU pede pra IA gerar um tema+texto motivador (`generate_essay_theme`); escolhe modo de correção (manual ou IA).
+- Se o modo é IA, o envio só aceita texto digitado (força `SubmissionType.TEXT`, foto vira texto) — já é a regra que queríamos ("foto só quando for correção manual, IA só texto por ora").
+- **Correção por IA está de fato funcionando**: `redacao/services.py::correct_essay` chama o Gemini com a rubrica das 5 competências do ENEM, salva nota + feedback por competência. Roda automaticamente via fila (`ops/scheduler.py`, APScheduler, a cada 5 minutos, `ENABLE_SCHEDULER=True` em produção) — não é preciso nenhuma ação manual, a correção acontece sozinha em até ~5min após o envio.
+- Correção manual pelo professor: nota + feedback por competência (`ProfessorEssayGradingView`).
+- Fixtures do corpus Essay-BR presentes pra validação futura do prompt (não usado ainda em produção, só disponível pra teste).
+- Falta: **LaTeX** (Markdown já funciona, LaTeX não — adiado, ver Roadmap).
 
 **Estilização**
 - CSS básico próprio (`core/static/core/css/main.css`, sem framework externo), cabeçalho com troca de contexto e logout.
@@ -45,34 +52,55 @@ Documento vivo: registra o que já existe (pra não redescobrir nada) e o roadma
 ## Problemas / dívida técnica conhecida
 
 1. Deploy manual necessário no Cloud Run (ver acima)
-2. Redação: confirmar se a correção por IA está de fato implementada ou só a estrutura de dados existe
-3. Questão 132/2023 com alternativas vazias — decidir o que fazer
-4. Nunca testamos o fluxo completo de "professor cria turma, vincula aluno, atribui simulado/redação" ponta a ponta
+2. Questão 132/2023 com alternativas vazias — decidir o que fazer
+3. Nunca testamos o fluxo completo de "professor cria turma, vincula aluno, atribui simulado/redação" ponta a ponta
+4. **Não existe nenhuma navegação entre as áreas do site.** `base.html` só tem "Trocar contexto" e "Sair" no cabeçalho — nada linka pra simulados, redação ou relatório. Isso é a causa raiz de boa parte da sensação de "nada foi feito": a funcionalidade existe, mas não é descobrível. Corrigido no Roadmap #1.
 
 ## Roadmap — por prioridade
 
-### 1. [PRIORIDADE MÁXIMA] Repensar geração de simulados
+Ordem confirmada com o usuário em 2026-07-09. Pagamento e e-mail configurado ficam de fora por enquanto (usuário confirmou que não são prioridade agora); LaTeX também adiado.
 
-Feedback direto do usuário (2026-07-09): **o modelo atual não é o que foi pedido, nada do que existe hoje reflete a visão do produto.**
+### 1. [FAZENDO AGORA] Navegação + página inicial do aluno
+
+Sem isso, nada do resto é descobrível. Adicionar:
+- Menu de navegação no `base.html` (ou específico por contexto ativo) linkando pra simulados, redação, relatório
+- Uma página inicial/hub pós-seleção-de-contexto pro aluno, com atalhos claros: "Fazer simulado", "Escrever redação", "Ver meu relatório", "Meus simulados anteriores"
+
+### 2. Cadastro (self-registration)
+
+Hoje só um admin/professor consegue criar contas (via `/admin` ou shell). Precisa:
+- Tela de cadastro pra aluno individual (cria `User` + `AlunoProfile` com `escola=None`)
+- Fluxo de aluno se vincular a uma escola usando o **mesmo e-mail** de uma conta individual já existente (ou vice-versa) — like ao logar, se o `User` tiver mais de um contexto, `SelectContextView` já pergunta qual usar (isso já existe); falta só o cadastro permitir chegar nesse estado.
+- Cadastro de escola/professor também (hoje só existe via admin).
+
+### 3. Repensar geração de simulados
+
+Feedback direto do usuário (2026-07-09): o modelo atual (prova histórica fixa OU escolha manual de 1 disciplina) não é o que foi pedido.
 
 O que deve existir:
-- **Um banco de questões único**, não provas históricas isoladas — todas as 2757 questões (todos os anos) formam um pool só.
-- Cada simulado deve ser **gerado aleatoriamente respeitando a distribuição real de matérias do ENEM** (a proporção de questões por área — Linguagens, Ciências Humanas, Ciências da Natureza, Matemática — como no exame real), não uma prova histórica fixa nem uma escolha manual de 1 disciplina.
-- **Nunca deve haver dois simulados idênticos** para o mesmo aluno (alta variabilidade — amostragem aleatória do pool a cada geração, evitando repetir o mesmo conjunto de questões).
-- **Esse deve ser o fluxo padrão/principal**, não uma opção secundária — quando um aluno individual ("solo") entra pra fazer um simulado, é isso que ele deve ver primeiro. O usuário testou como aluno solo e "não viu nada disso".
-- O modo "fazer uma prova histórica completa" pode continuar existindo como opção secundária (tipo "quero fazer o ENEM 2015 inteiro, como caiu de verdade"), mas não é mais o caminho principal.
+- **Um banco de questões único** — todas as 2757 questões (todos os anos) formam um pool só, não provas isoladas por ano.
+- Cada simulado **gerado aleatoriamente respeitando a distribuição real de matérias do ENEM** (proporção por área: Linguagens, Ciências Humanas, Ciências da Natureza, Matemática, como no exame real).
+- **Nunca dois simulados idênticos** pro mesmo aluno — alta variabilidade, evitar repetir o mesmo conjunto de questões (já existe uma base disso em `select_by_difficulty_band`, que exclui questões já respondidas).
+- **Esse é o fluxo padrão** que o aluno solo vê ao querer fazer um simulado — a prova histórica fixa vira opção secundária.
 
-Implicações técnicas a considerar quando for implementar:
-- Provavelmente precisa de uma nova função em `simulados/services.py` (algo como `start_simulado_enem_completo` ou substituir o `start_fixed_simulado` atual) que amostra do pool inteiro respeitando proporções por `Discipline`.
-- Pensar em como registrar/evitar repetição — talvez um histórico de `question_id`s já usados pelo aluno, com preferência por questões não vistas até esgotar o pool.
-- Decidir a UI: a tela `simulados:start` (`start.html`) deixa de ser "escolha uma prova" e vira algo tipo "gerar simulado completo" com um botão único, movendo a escolha de prova histórica pra um lugar secundário.
+Implicações técnicas:
+- Nova função em `simulados/services.py` que amostra do pool inteiro respeitando proporções por `Discipline` (reaproveitar a lógica de amostragem ponderada já existente).
+- `simulados:start` (`start.html`) deixa de ser "escolha uma prova" — vira "gerar simulado completo", com a prova histórica fixa como opção secundária/avançada.
 
-### 2. Dashboards do banco de questões
+### 4. Histórico de simulados (versão básica)
 
-Usuário mencionou "banco de questões dashboards" — a interpretação provável é um painel mostrando estatísticas do **banco de questões em si** (quantas questões por matéria/tópico/dificuldade, cobertura da taxonomia, distribuição de parâmetros TRI calibrados vs. estimados pelo LLM, etc.), não o relatório de desempenho do aluno (que já existe). **Confirmar com o usuário antes de implementar** — ficou ambíguo no pedido original.
+Lista simples dos simulados já feitos pelo aluno (data, tipo, percentual, link pro resultado). Sem filtros/paginação sofisticada por ora — só o básico funcionando.
+
+### Adiado (confirmado com o usuário — não fazer agora)
+
+- LaTeX na redação (Markdown já funciona)
+- Pagamento / planos (individual paga e entra; escola escolhe plano por quantidade de alunos)
+- E-mail transacional configurado (hoje cai no console backend em dev; produção nunca configurou SMTP real)
+- Upload de foto pra correção por IA de redação (hoje IA só aceita texto; foto é só pra correção manual)
+- Dashboard do banco de questões em si (estatísticas de cobertura por matéria/tópico/dificuldade) — ficou ambíguo se é isso mesmo que o usuário quis dizer, confirmar antes de implementar se voltar à tona
 
 ## Convenções
 
-- Sempre rodar a suíte de testes local antes de commitar (`python manage.py test`, com `.env` trocado temporariamente pra usar SQLite — ver histórico de sessões anteriores pro procedimento exato).
+- Sempre rodar a suíte de testes local antes de commitar (`python manage.py test`, com `.env` trocado temporariamente pra usar SQLite).
 - Sempre validar visualmente mudanças de UI com Playwright antes de considerar pronto (screenshots + checagem de erros de console).
 - Depois de todo push, lembrar do passo de implantação manual no Cloud Run (ver "Problemas conhecidos" #1).
