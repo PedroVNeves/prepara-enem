@@ -10,7 +10,7 @@ Documento vivo: registra o que já existe (pra não redescobrir nada) e o roadma
 - Django 5.2 + Postgres (Neon, região `sa-east-1`) + Cloud Run (deploy via Dockerfile, Python 3.12) + Gemini API
 - Repositório: `github.com/PedroVNeves/prepara-enem`, produção em `https://prepara-enem-pw3vw6bmvq-rj.a.run.app`
 - GitHub Action de keep-alive (ping a cada 10min, variável `APP_URL` configurada)
-- ⚠️ **Deploy manual necessário**: o gatilho do Cloud Build constrói a imagem automaticamente a cada push, mas não cria uma revisão nova no Cloud Run sozinho — depois de cada push é preciso ir em Cloud Run → "Editar e implantar nova revisão" e confirmar manualmente, usando a imagem `southamerica-east1-docker.pkg.dev/prepara-enem-501721/cloud-run-source-deploy/pedrovneves-prepara-enem/prepara-enem:latest` (não a sugestão pré-preenchida do Container Registry legado, que aponta pra outro lugar). Não descobrimos a causa raiz ainda — fica como dívida técnica de infra.
+- ✅ **Deploy automático resolvido** (2026-07-09): o gatilho (tipo "Dockerfile") nunca tinha um passo de deploy — só construía a imagem e empurrava pro Artifact Registry, por isso toda revisão nova no Cloud Run exigia implantação manual. Corrigido trocando o gatilho pra tipo "Arquivo de configuração do Cloud Build" apontando pro `cloudbuild.yaml` (raiz do repo), que builda, dá push com tag `$COMMIT_SHA` + `latest`, e roda `gcloud run deploy` explicitamente. Precisou de uma conta de serviço gerenciada pelo usuário no gatilho (com permissão de Cloud Run Admin) e `options.logging: CLOUD_LOGGING_ONLY` no YAML (obrigatório sempre que uma conta de serviço customizada é usada — a UI simplificada de gatilho por Dockerfile não expõe esse campo, só o modo YAML). Confirmado funcionando: push → build → deploy, sem clique manual.
 
 **Dataset**
 - 2757 questões do ENEM (2009–2023) importadas — texto, alternativas, gabarito, imagens
@@ -51,22 +51,20 @@ Documento vivo: registra o que já existe (pra não redescobrir nada) e o roadma
 
 ## Problemas / dívida técnica conhecida
 
-1. Deploy manual necessário no Cloud Run (ver acima)
+1. ~~Deploy manual necessário no Cloud Run~~ — **resolvido 2026-07-09**, ver "Infra" acima
 2. Questão 132/2023 com alternativas vazias — decidir o que fazer
 3. Nunca testamos o fluxo completo de "professor cria turma, vincula aluno, atribui simulado/redação" ponta a ponta
-4. **Não existe nenhuma navegação entre as áreas do site.** `base.html` só tem "Trocar contexto" e "Sair" no cabeçalho — nada linka pra simulados, redação ou relatório. Isso é a causa raiz de boa parte da sensação de "nada foi feito": a funcionalidade existe, mas não é descobrível. Corrigido no Roadmap #1.
+4. ~~Não existe nenhuma navegação entre as áreas do site~~ — **resolvido 2026-07-09**, ver "Roadmap" (navegação + página inicial)
 
 ## Roadmap — por prioridade
 
 Ordem confirmada com o usuário em 2026-07-09. Pagamento e e-mail configurado ficam de fora por enquanto (usuário confirmou que não são prioridade agora); LaTeX também adiado.
 
-### 1. [FAZENDO AGORA] Navegação + página inicial do aluno
+### 1. ✅ Navegação + página inicial — feito (2026-07-09)
 
-Sem isso, nada do resto é descobrível. Adicionar:
-- Menu de navegação no `base.html` (ou específico por contexto ativo) linkando pra simulados, redação, relatório
-- Uma página inicial/hub pós-seleção-de-contexto pro aluno, com atalhos claros: "Fazer simulado", "Escrever redação", "Ver meu relatório", "Meus simulados anteriores"
+Menu de navegação em `base.html` (via `accounts.context_processors.active_context`, contexto-aware: links diferentes pra aluno/professor) + páginas iniciais dedicadas (`core.views.AlunoHomeView`/`ProfessorHomeView`, em `/aluno/` e `/professor/`) com atalhos e lista de simulados recentes / turmas. Verificado em produção.
 
-### 2. Cadastro (self-registration)
+### 2. [PRÓXIMO] Cadastro (self-registration)
 
 Hoje só um admin/professor consegue criar contas (via `/admin` ou shell). Precisa:
 - Tela de cadastro pra aluno individual (cria `User` + `AlunoProfile` com `escola=None`)
