@@ -226,7 +226,7 @@
     }
     const { labelKey, series, unit = "" } = opts; // series: [{key, name, color}]
 
-    const margin = { top: 12, right: 16, bottom: 34, left: 44 };
+    const margin = { top: 12, right: 16, bottom: 68, left: 44 };
     const width = root.clientWidth || 640;
     const groupHeight = 220;
     const height = groupHeight + margin.top + margin.bottom;
@@ -248,13 +248,34 @@
     const maxVal = d3.max(data, (d) => d3.max(series, (s) => d[s.key])) || 1;
     const y = d3.scaleLinear().domain([0, maxVal]).range([groupHeight, 0]).nice();
 
+    // rótulos de categoria longos (nomes de disciplina em português) colidem
+    // lado a lado num grupo estreito — rotaciona e trunca por largura real
+    // renderizada (não por contagem de caracteres, que erra a mão pra fontes
+    // proporcionais), com o nome completo disponível via <title> (tooltip
+    // nativo do navegador).
+    const maxLabelPx = Math.max(70, margin.bottom / Math.sin((35 * Math.PI) / 180) - 12);
     g.append("g")
       .attr("transform", `translate(0,${groupHeight})`)
       .call(d3.axisBottom(x0).tickSize(0))
       .call((sel) => sel.select(".domain").attr("stroke", PALETTE.baseline))
       .selectAll("text")
       .attr("fill", PALETTE.textSecondary)
-      .attr("font-size", 12);
+      .attr("font-size", 12)
+      .attr("text-anchor", "end")
+      .attr("dx", "-0.6em")
+      .attr("dy", "0.35em")
+      .attr("transform", "rotate(-35)")
+      .each(function (d) {
+        const node = this;
+        let label = d;
+        node.textContent = label;
+        while (node.getComputedTextLength() > maxLabelPx && label.length > 1) {
+          label = label.slice(0, -1);
+          node.textContent = label + "…";
+        }
+      })
+      .append("title")
+      .text((d) => d);
 
     g.append("g")
       .call(d3.axisLeft(y).ticks(4).tickSize(-innerWidth))
