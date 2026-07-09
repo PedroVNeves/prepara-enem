@@ -11,6 +11,7 @@ from .services import (
     finalize_simulado,
     record_answer,
     score_summary,
+    score_summary_dashboard,
     start_custom_simulado,
     start_fixed_simulado,
 )
@@ -99,9 +100,8 @@ class SimuladoResultView(AlunoContextRequiredMixin, View):
         perfil = current_aluno_profile(request)
         simulado = get_object_or_404(Simulado, pk=simulado_id, aluno_profile=perfil)
         if simulado.status != StatusSimulado.FINALIZADO:
-            resumo = finalize_simulado(simulado)
-        else:
-            resumo = score_summary(simulado)
+            finalize_simulado(simulado)
+        resumo = score_summary_dashboard(simulado)
         return render(request, self.template_name, {"simulado": simulado, "resumo": resumo})
 
 

@@ -334,3 +334,46 @@ th, td {
   border-radius: 2px;
   display: inline-block;
 }
+
+.viz-hero-card {
+  text-align: center;
+}
+
+.viz-hero {
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--color-text);
+  line-height: 1.1;
+}
+
+.viz-hero-caption {
+  color: var(--color-text-muted);
+  margin: 0.3rem 0 0;
+}
+
+.viz-review-table {
+  width: 100%;
+}
+
+.viz-badge {
+  display: inline-block;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.viz-badge-good {
+  background: #e6f6ea;
+  color: #006300;
+}
+
+.viz-badge-bad {
+  background: #fff5f5;
+  color: #c53030;
+}
+
+.viz-badge-neutral {
+  background: #f0efec;
+  color: var(--color-text-muted);
+}

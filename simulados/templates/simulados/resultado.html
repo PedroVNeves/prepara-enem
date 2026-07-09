@@ -1,6 +1,67 @@
 {% extends "base.html" %}
+{% load static %}
 {% block content %}
 <h1>Resultado</h1>
-<p>Acertos: {{ resumo.acertos }} / {{ resumo.total_questoes }} ({{ resumo.percentual }}%)</p>
+
+<div class="card viz-hero-card">
+  <div class="viz-hero">{{ resumo.percentual }}%</div>
+  <p class="viz-hero-caption">{{ resumo.acertos }} de {{ resumo.total_questoes }} questões corretas</p>
+</div>
+
+{% if resumo.por_disciplina|length > 1 %}
+<div class="card">
+  <h2>Acerto por área</h2>
+  <div id="chart-resultado-area" class="viz-root"></div>
+</div>
+{% endif %}
+
+<div class="card">
+  <h2>Revisão questão a questão</h2>
+  <table class="viz-review-table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Área</th>
+        <th>Assunto</th>
+        <th>Resultado</th>
+        <th>Tempo</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for q in resumo.questoes %}
+      <tr>
+        <td>{{ q.ordem }}</td>
+        <td>{{ q.discipline_label }}</td>
+        <td>{{ q.topic|default:"—" }}</td>
+        <td>
+          {% if not q.respondida %}<span class="viz-badge viz-badge-neutral">Não respondida</span>
+          {% elif q.correta %}<span class="viz-badge viz-badge-good">Correta</span>
+          {% else %}<span class="viz-badge viz-badge-bad">Errada</span>
+          {% endif %}
+        </td>
+        <td>{{ q.tempo_s }}s</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
 <a href="{% url 'simulados:start' %}">Fazer outro simulado</a>
+
+{% if resumo.por_disciplina|length > 1 %}
+{{ resumo.por_disciplina|json_script:"data-resultado-area" }}
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script src="{% static 'core/js/charts.js' %}"></script>
+<script>
+  const porDisciplina = JSON.parse(document.getElementById('data-resultado-area').textContent);
+  PreparaEnemCharts.renderBarChart('chart-resultado-area', porDisciplina, {
+    labelKey: 'discipline_label',
+    valueKey: 'percentual',
+    unit: '%',
+    ariaLabel: 'Percentual de acerto por área neste simulado',
+    tableLabelHeader: 'Área',
+    tableValueHeader: '% de acerto',
+  });
+</script>
+{% endif %}
 {% endblock %}

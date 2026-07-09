@@ -204,7 +204,7 @@ class SimuladoFlowTests(TestCase):
 
         response = client.get(reverse("simulados:resultado", args=[simulado_id]))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "3 / 3")
+        self.assertContains(response, "3 de 3 questões corretas")
 
     def test_aluno_cannot_access_simulado_of_another_aluno(self):
         outro_user = User.objects.create_user(

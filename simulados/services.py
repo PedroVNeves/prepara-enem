@@ -206,3 +206,65 @@ def score_summary(simulado):
         "acertos": acertos,
         "percentual": round(100 * acertos / total, 1) if total else 0,
     }
+
+
+def score_summary_dashboard(simulado):
+    """Versão detalhada do resumo, pro dashboard da tela de resultado (gráfico
+    por área + revisão questão a questão) — score_summary continua enxuto
+    porque é usado também na listagem agregada do professor (uma linha por
+    aluno), onde só o percentual importa."""
+    from exams.models import Discipline
+
+    def _discipline_label(value):
+        return dict(Discipline.choices).get(value, value)
+
+    respostas_by_qid = {
+        r.question_id: r for r in simulado.respostas.select_related("question", "question__topic")
+    }
+    perguntas = list(simulado.perguntas.select_related("question", "question__topic").order_by("ordem"))
+    total = len(perguntas)
+    acertos = sum(1 for r in respostas_by_qid.values() if r.correta)
+
+    por_disciplina = {}
+    questoes = []
+    for pergunta in perguntas:
+        q = pergunta.question
+        resposta = respostas_by_qid.get(q.id)
+        correta = bool(resposta and resposta.correta)
+        tempo_ms = resposta.tempo_gasto_ms if resposta else 0
+
+        bucket = por_disciplina.setdefault(
+            q.discipline, {"discipline_label": _discipline_label(q.discipline), "acertos": 0, "total": 0}
+        )
+        bucket["total"] += 1
+        if correta:
+            bucket["acertos"] += 1
+
+        questoes.append(
+            {
+                "ordem": pergunta.ordem,
+                "discipline_label": _discipline_label(q.discipline),
+                "topic": q.topic.name if q.topic_id else None,
+                "correta": correta,
+                "respondida": resposta is not None,
+                "tempo_s": round(tempo_ms / 1000, 1),
+            }
+        )
+
+    por_disciplina_lista = [
+        {
+            "discipline_label": v["discipline_label"],
+            "acertos": v["acertos"],
+            "total": v["total"],
+            "percentual": round(100 * v["acertos"] / v["total"], 1) if v["total"] else 0,
+        }
+        for v in por_disciplina.values()
+    ]
+
+    return {
+        "total_questoes": total,
+        "acertos": acertos,
+        "percentual": round(100 * acertos / total, 1) if total else 0,
+        "por_disciplina": por_disciplina_lista,
+        "questoes": questoes,
+    }
