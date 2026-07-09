@@ -11,9 +11,19 @@
 <body>
   <header class="site-header">
     <div class="bar">
-      <a class="brand" href="/">Prepara ENEM</a>
+      <a class="brand" href="{% if active_context.kind == 'aluno' %}{% url 'core:aluno_home' %}{% elif active_context.kind == 'professor' %}{% url 'core:professor_home' %}{% else %}/{% endif %}">Prepara ENEM</a>
       {% if user.is_authenticated %}
       <nav>
+        {% if active_context.kind == 'aluno' %}
+        <a href="{% url 'core:aluno_home' %}">Início</a>
+        <a href="{% url 'simulados:start' %}">Simulados</a>
+        <a href="{% url 'redacao:submit' %}">Redação</a>
+        <a href="{% url 'reports:student_report' %}">Relatório</a>
+        {% elif active_context.kind == 'professor' %}
+        <a href="{% url 'core:professor_home' %}">Início</a>
+        <a href="{% url 'simulados:assignment_create' %}">Atribuir simulado</a>
+        <a href="{% url 'redacao:assignment_create' %}">Atribuir redação</a>
+        {% endif %}
         <a href="{% url 'accounts:select_context' %}">Trocar contexto</a>
         <form method="post" action="{% url 'accounts:logout' %}" class="logout-form">
           {% csrf_token %}

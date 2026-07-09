@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Painel do professor</h1>
+
+<div class="hub-grid">
+  <a class="card hub-card" href="{% url 'simulados:assignment_create' %}">
+    <h2>Atribuir simulado</h2>
+    <p>Envie um simulado por área/assunto para uma turma ou alunos específicos.</p>
+  </a>
+  <a class="card hub-card" href="{% url 'redacao:assignment_create' %}">
+    <h2>Atribuir redação</h2>
+    <p>Escolha um tema (ou peça pra IA gerar um) e o modo de correção.</p>
+  </a>
+</div>
+
+<div class="card">
+  <h2>Minhas turmas</h2>
+  {% if turmas %}
+  <table>
+    <thead>
+      <tr><th>Turma</th><th>Ano letivo</th><th></th></tr>
+    </thead>
+    <tbody>
+      {% for turma in turmas %}
+      <tr>
+        <td>{{ turma.nome }}</td>
+        <td>{{ turma.ano_letivo }}</td>
+        <td><a href="{% url 'reports:turma_stats' turma.id %}">Ver estatísticas</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="viz-empty">Nenhuma turma cadastrada ainda.</p>
+  {% endif %}
+</div>
+{% endblock %}

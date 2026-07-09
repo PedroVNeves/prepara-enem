@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Olá!</h1>
+
+<div class="hub-grid">
+  <a class="card hub-card" href="{% url 'simulados:start' %}">
+    <h2>Fazer simulado</h2>
+    <p>Prova histórica completa ou simulado customizado por área/assunto.</p>
+  </a>
+  <a class="card hub-card" href="{% url 'redacao:submit' %}">
+    <h2>Escrever redação</h2>
+    <p>Pratique com um tema livre — correção por IA em poucos minutos.</p>
+  </a>
+  <a class="card hub-card" href="{% url 'reports:student_report' %}">
+    <h2>Meu relatório</h2>
+    <p>Domínio por área, assuntos com mais dificuldade, tempo por questão.</p>
+  </a>
+</div>
+
+<div class="card">
+  <h2>Simulados recentes</h2>
+  {% if simulados_recentes %}
+  <table>
+    <thead>
+      <tr><th>Data</th><th>Tipo</th><th>Status</th><th></th></tr>
+    </thead>
+    <tbody>
+      {% for s in simulados_recentes %}
+      <tr>
+        <td>{{ s.criado_em|date:"d/m/Y H:i" }}</td>
+        <td>{{ s.get_tipo_display }}</td>
+        <td>{{ s.get_status_display }}</td>
+        <td>
+          {% if s.status == "finalizado" %}
+          <a href="{% url 'simulados:resultado' s.id %}">Ver resultado</a>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="viz-empty">Você ainda não fez nenhum simulado.</p>
+  {% endif %}
+</div>
+{% endblock %}

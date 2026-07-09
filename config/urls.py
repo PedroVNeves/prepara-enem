@@ -7,13 +7,9 @@ from django.views.generic import RedirectView
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("", RedirectView.as_view(pattern_name="accounts:login", permanent=False)),
-    # accounts:select_context redireciona pra cá após login — sem isso, todo
-    # aluno/professor cai num 404 assim que entra.
-    path("aluno/", RedirectView.as_view(pattern_name="simulados:start", permanent=False)),
-    path(
-        "professor/",
-        RedirectView.as_view(pattern_name="simulados:assignment_create", permanent=False),
-    ),
+    # accounts:select_context redireciona pra "/aluno/" ou "/professor/" após
+    # login — essas rotas viram a página inicial de cada contexto (core.urls).
+    path("", include("core.urls")),
     path("", include("accounts.urls")),
     path("", include("simulados.urls")),
     path("", include("redacao.urls")),

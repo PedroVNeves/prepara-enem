@@ -57,7 +57,6 @@ header.site-header nav a {
   color: var(--color-text-muted);
   text-decoration: none;
   font-size: 0.9rem;
-  margin-left: 1.25rem;
 }
 
 header.site-header nav a:hover {
@@ -67,6 +66,9 @@ header.site-header nav a:hover {
 header.site-header nav {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.1rem;
+  justify-content: flex-end;
 }
 
 .logout-form {
@@ -85,7 +87,6 @@ header.site-header nav {
   font-size: 0.9rem;
   font-family: inherit;
   font-weight: normal;
-  margin-left: 1.25rem;
   padding: 0;
   cursor: pointer;
 }
@@ -376,4 +377,36 @@ th, td {
 .viz-badge-neutral {
   background: #f0efec;
   color: var(--color-text-muted);
+}
+
+/* --- página inicial (hub) --- */
+.hub-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.hub-card {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.12s ease, transform 0.12s ease;
+}
+
+.hub-card:hover {
+  border-color: var(--color-primary);
+  transform: translateY(-1px);
+}
+
+.hub-card h2 {
+  margin-top: 0;
+  color: var(--color-primary);
+  font-size: 1.05rem;
+}
+
+.hub-card p {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
 }
